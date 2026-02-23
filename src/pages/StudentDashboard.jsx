@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getQuestions, getCurrentStudent } from '../utils/storage';
-import { Play, CheckCircle, XCircle, Clock, Timer, EyeOff, FileText, Code2 } from 'lucide-react';
+import { Play, CheckCircle, XCircle, Clock, Timer, EyeOff, FileText, Code2, Star } from 'lucide-react';
 
 export default function StudentDashboard() {
   const [questions, setQuestions] = useState([]);
@@ -173,6 +173,19 @@ export default function StudentDashboard() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', color: '#6b7280' }}>
                         <Clock size={11} /> {new Date(sub.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       </span>
+                      {sub.grade !== null && sub.grade !== undefined && (
+                        <span style={{
+                          display: 'flex', alignItems: 'center', gap: '0.25rem',
+                          fontSize: '0.75rem', fontWeight: 700,
+                          color: '#60a5fa',
+                          background: 'rgba(59,130,246,0.1)',
+                          padding: '0.15rem 0.5rem',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(59,130,246,0.2)'
+                        }}>
+                          <Star size={11} /> Nilai: {sub.grade}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

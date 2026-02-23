@@ -32,6 +32,17 @@ async function alterDB() {
       }
     }
 
+    try {
+      await connection.query('ALTER TABLE submissions ADD COLUMN grade INT DEFAULT NULL');
+      console.log('Kolom grade berhasil ditambahkan.');
+    } catch (e) {
+      if (e.code === 'ER_DUP_FIELDNAME') {
+        console.log('Kolom grade sudah ada.');
+      } else {
+        throw e;
+      }
+    }
+
     await connection.end();
     process.exit(0);
   } catch (err) {

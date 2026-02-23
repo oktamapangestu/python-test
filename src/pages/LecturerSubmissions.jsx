@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQuestionById } from '../utils/storage';
-import { List, CheckCircle, XCircle, ArrowLeft, User, Clock, Code2, Timer, MessageSquare, EyeOff, Play, Loader2, Terminal, ChevronRight } from 'lucide-react';
+import { List, CheckCircle, XCircle, ArrowLeft, User, Clock, Code2, Timer, MessageSquare, EyeOff, Play, Loader2, Terminal, ChevronRight, Save, Star } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -13,6 +13,9 @@ export default function LecturerSubmissions() {
   const [submissions, setSubmissions] = useState([]);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [gradeInput, setGradeInput] = useState('');
+  const [isSavingGrade, setIsSavingGrade] = useState(false);
+  const [gradeMessage, setGradeMessage] = useState('');
 
   // Skulpt execution state
   const [isSkulptReady, setIsSkulptReady] = useState(false);
@@ -96,6 +99,44 @@ export default function LecturerSubmissions() {
     }
   };
 
+  const selectSubmission = (sub) => {
+    setSelectedSubmission(sub);
+    setGradeInput(sub.grade !== null && sub.grade !== undefined ? String(sub.grade) : '');
+    setGradeMessage('');
+  };
+
+  const saveGrade = async () => {
+    if (!selectedSubmission || gradeInput === '') return;
+    const grade = parseInt(gradeInput);
+    if (isNaN(grade) || grade < 0 || grade > 100) {
+      setGradeMessage('Nilai harus 0-100');
+      return;
+    }
+    setIsSavingGrade(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3000/api`;
+      const res = await fetch(`${apiUrl}/submissions/${selectedSubmission.id}/grade`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grade })
+      });
+      if (res.ok) {
+        // Update local state
+        setSubmissions(prev => prev.map(s => s.id === selectedSubmission.id ? { ...s, grade } : s));
+        setSelectedSubmission(prev => ({ ...prev, grade }));
+        setGradeMessage('✓ Tersimpan');
+        setTimeout(() => setGradeMessage(''), 2000);
+      } else {
+        const data = await res.json();
+        setGradeMessage(data.error || 'Gagal menyimpan');
+      }
+    } catch (err) {
+      setGradeMessage('Gagal menyimpan');
+    } finally {
+      setIsSavingGrade(false);
+    }
+  };
+
   const formatDuration = (seconds) => {
     if (!seconds && seconds !== 0) return null;
     if (seconds < 60) return `${seconds}d`;
@@ -135,6 +176,7 @@ export default function LecturerSubmissions() {
         setSubmissions(latestSubmissions);
         if (latestSubmissions.length > 0) {
           setSelectedSubmission(latestSubmissions[0]);
+          setGradeInput(latestSubmissions[0].grade !== null && latestSubmissions[0].grade !== undefined ? String(latestSubmissions[0].grade) : '');
         }
       } catch (err) {
         console.error(err);
@@ -228,7 +270,7 @@ export default function LecturerSubmissions() {
               submissions.map((sub) => (
                 <button
                   key={sub.id}
-                  onClick={() => setSelectedSubmission(sub)}
+                  onClick={() => selectSubmission(sub)}
                   style={{
                     width: '100%',
                     textAlign: 'left',
@@ -298,6 +340,15 @@ export default function LecturerSubmissions() {
                           <Clock size={10} />
                           {new Date(sub.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                         </span>
+                        {sub.grade !== null && sub.grade !== undefined && (
+                          <span style={{
+                            color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '0.2rem',
+                            fontWeight: 700
+                          }} title={`Nilai: ${sub.grade}`}>
+                            <Star size={10} />
+                            {sub.grade}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -494,9 +545,50 @@ export default function LecturerSubmissions() {
                 gap: '0.5rem',
                 flexShrink: 0
               }}>
+                {/* Grade Input */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px rgba(34,197,94,0.8)' }}></span>
-                  <span>Sinkronisasi Aktif</span>
+                  <Star size={14} style={{ color: '#60a5fa' }} />
+                  <span style={{ fontWeight: 600, color: '#d1d5db', fontSize: '0.8rem' }}>Nilai:</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={gradeInput}
+                    onChange={(e) => { setGradeInput(e.target.value); setGradeMessage(''); }}
+                    onKeyDown={(e) => e.key === 'Enter' && saveGrade()}
+                    placeholder="0-100"
+                    style={{
+                      width: '65px', padding: '0.3rem 0.5rem',
+                      background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '6px', color: '#f1f5f9', fontSize: '0.85rem', fontWeight: 700,
+                      textAlign: 'center', outline: 'none',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                  <button
+                    onClick={saveGrade}
+                    disabled={isSavingGrade || gradeInput === ''}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.3rem',
+                      padding: '0.3rem 0.75rem', borderRadius: '6px',
+                      fontSize: '0.75rem', fontWeight: 600,
+                      background: 'rgba(59,130,246,0.15)', color: '#60a5fa',
+                      border: '1px solid rgba(59,130,246,0.3)',
+                      cursor: (isSavingGrade || gradeInput === '') ? 'not-allowed' : 'pointer',
+                      opacity: (isSavingGrade || gradeInput === '') ? 0.5 : 1,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Save size={12} /> Simpan
+                  </button>
+                  {gradeMessage && (
+                    <span style={{
+                      fontSize: '0.7rem', fontWeight: 600,
+                      color: gradeMessage.includes('✓') ? '#4ade80' : '#f87171'
+                    }}>
+                      {gradeMessage}
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   {selectedSubmission.tab_switch_count > 0 && (

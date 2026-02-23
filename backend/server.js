@@ -323,6 +323,28 @@ app.get('/api/submissions/student/:studentId', async (req, res) => {
   }
 });
 
+// Update grade for a submission (For Lecturers)
+app.patch('/api/submissions/:id/grade', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { grade } = req.body;
+
+    if (grade === undefined || grade === null) {
+      return res.status(400).json({ error: 'Nilai tidak boleh kosong.' });
+    }
+
+    if (grade < 0 || grade > 100) {
+      return res.status(400).json({ error: 'Nilai harus antara 0-100.' });
+    }
+
+    await pool.execute('UPDATE submissions SET grade = ? WHERE id = ?', [grade, id]);
+    res.json({ message: 'Nilai berhasil disimpan.' });
+  } catch (err) {
+    console.error('Update grade error:', err);
+    res.status(500).json({ error: 'Gagal menyimpan nilai.' });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend server running on http://0.0.0.0:${PORT}`);
 });
