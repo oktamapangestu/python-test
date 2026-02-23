@@ -114,7 +114,8 @@ export default function StudentCodingArea() {
 
       // Check if student already submitted
       try {
-        const checkRes = await fetch(`http://${window.location.hostname}:3000/api/submissions/check/${q.id}/${student?.id}`);
+        const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3000/api`;
+        const checkRes = await fetch(`${apiUrl}/submissions/check/${q.id}/${student?.id}`);
         const checkData = await checkRes.json();
         if (checkData.submitted) {
           setSubmissionStatus(checkData.submission);
@@ -178,7 +179,8 @@ export default function StudentCodingArea() {
       const startTime = parseInt(localStorage.getItem(startKey) || '0');
       const durationSeconds = startTime ? Math.floor((Date.now() - startTime) / 1000) : null;
 
-      await fetch(`http://${window.location.hostname}:3000/api/submissions`, {
+      const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3000/api`;
+      await fetch(`${apiUrl}/submissions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

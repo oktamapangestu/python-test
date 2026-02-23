@@ -19,7 +19,8 @@ export default function StudentDashboard() {
     // Fetch all submissions for this student
     if (student?.id) {
       try {
-        const res = await fetch(`http://${window.location.hostname}:3000/api/submissions/student/${student.id}`);
+        const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3000/api`;
+        const res = await fetch(`${apiUrl}/submissions/student/${student.id}`);
         const subs = await res.json();
         // Group by question_id, keep latest per question
         const subMap = {};

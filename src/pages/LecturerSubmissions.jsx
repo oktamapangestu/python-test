@@ -35,7 +35,8 @@ export default function LecturerSubmissions() {
         }
         setQuestion(q);
 
-        const response = await fetch(`http://${window.location.hostname}:3000/api/submissions/${id}`);
+        const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3000/api`;
+        const response = await fetch(`${apiUrl}/submissions/${id}`);
         const data = await response.json();
 
         // Group by student_id to only keep the latest submission per student
