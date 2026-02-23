@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQuestionById, getCurrentStudent } from '../utils/storage';
-import { Loader2, Play, CheckCircle, XCircle, ArrowLeft, Clock, Send, AlertTriangle, Terminal, MessageSquare, Code2, Eye, X, EyeOff } from 'lucide-react';
+import { Loader2, Play, CheckCircle, XCircle, ArrowLeft, Clock, Send, AlertTriangle, Terminal, MessageSquare, Code2, Eye, X, EyeOff, FileText, ChevronRight } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -27,6 +27,11 @@ export default function StudentCodingArea() {
   // Mobile responsive state
   const [activeTab, setActiveTab] = useState('editor');
   const [isMobile, setIsMobile] = useState(false);
+
+  // Collapsible panel state
+  const [isQuestionOpen, setIsQuestionOpen] = useState(true);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(true);
+  const [isTestsOpen, setIsTestsOpen] = useState(true);
 
   useEffect(() => {
     codeRef.current = code;
@@ -122,11 +127,14 @@ export default function StudentCodingArea() {
           setCode(checkData.submission.code || q.initial_code || q.initialCode || '');
           if (checkData.submission.notes) setStudentNotes(checkData.submission.notes);
         } else {
-          setCode(q.initial_code || q.initialCode || '');
+          // Load auto-saved code, fallback to initial_code
+          const savedCode = localStorage.getItem(`code_${student?.id}_${q.id}`);
+          setCode(savedCode !== null ? savedCode : (q.initial_code || q.initialCode || ''));
         }
       } catch (err) {
         console.error("Gagal mengecek status pengerjaan", err);
-        setCode(q.initial_code || q.initialCode || '');
+        const savedCode = localStorage.getItem(`code_${student?.id}_${q.id}`);
+        setCode(savedCode !== null ? savedCode : (q.initial_code || q.initialCode || ''));
       }
 
       if (q.time_limit && !submissionStatus) {
@@ -197,6 +205,7 @@ export default function StudentCodingArea() {
       localStorage.removeItem(startKey);
       localStorage.removeItem(`notes_${student?.id}_${question.id}`);
       localStorage.removeItem(`tab_switch_${student?.id}_${question.id}`);
+      localStorage.removeItem(`code_${student?.id}_${question.id}`);
       setSubmissionStatus({ status: allPassed ? 'passed' : 'failed' });
     } catch (submitErr) {
       console.error("Gagal merekam jawaban:", submitErr);
@@ -418,7 +427,7 @@ export default function StudentCodingArea() {
               <h1 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{question.title}</h1>
               <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{question.description}</p>
             </div>
-            <button
+            {/* <button
               onClick={() => setIsQuestionModalOpen(true)}
               title="Lihat Soal"
               style={{
@@ -431,7 +440,7 @@ export default function StudentCodingArea() {
               }}
             >
               <Eye size={13} /> Lihat Soal
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="coding-topbar-actions">
@@ -589,7 +598,12 @@ export default function StudentCodingArea() {
               height="100%"
               theme={oneDark}
               extensions={[python()]}
-              onChange={(value) => !isTimeUp && !submissionStatus && setCode(value)}
+              onChange={(value) => {
+                if (!isTimeUp && !submissionStatus) {
+                  setCode(value);
+                  localStorage.setItem(`code_${student?.id}_${question?.id}`, value);
+                }
+              }}
               readOnly={isTimeUp || submissionStatus !== null}
               className="h-full text-sm font-mono border-0 [&>.cm-editor]:h-full"
             />
@@ -638,22 +652,51 @@ export default function StudentCodingArea() {
           </div>
         </div>
 
-        {/* Right Panel: Terminal + Test Results */}
+        {/* Right Panel: Question Info + Terminal + Test Results */}
         <div className={`coding-panel-right ${!showRightPanel ? 'hidden-mobile' : ''}`}>
+          {/* Question Info */}
+          <div style={{ flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div
+              className="collapsible-header"
+              onClick={() => setIsQuestionOpen(!isQuestionOpen)}
+              style={{ background: 'rgba(15,23,42,0.7)' }}
+            >
+              <ChevronRight size={14} className={`collapsible-chevron ${isQuestionOpen ? 'open' : ''}`} />
+              <FileText size={14} style={{ color: '#a78bfa' }} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d1d5db' }}>Soal</span>
+              {!isQuestionOpen && <span style={{ fontSize: '0.7rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{question.title}</span>}
+            </div>
+            {isQuestionOpen && (
+              <div className="collapsible-content" style={{ padding: '0.75rem 1rem' }}>
+                <h2 style={{
+                  fontSize: '0.95rem', fontWeight: 700, color: '#e5e7eb',
+                  margin: '0 0 0.375rem 0'
+                }}>
+                  {question.title}
+                </h2>
+                <p style={{
+                  fontSize: '0.8rem', color: '#94a3b8', margin: 0,
+                  lineHeight: 1.6, whiteSpace: 'pre-wrap'
+                }}>
+                  {question.description}
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Terminal */}
           {showTerminal && (
             <div
               className="coding-terminal-section"
-              style={{ flex: isMobile ? '1 1 100%' : '1 1 50%', display: 'flex', flexDirection: 'column', borderBottom: !isMobile ? '1px solid rgba(255,255,255,0.06)' : 'none', minHeight: 0 }}
+              style={{ flex: isMobile ? '1 1 100%' : (isTerminalOpen ? '1 1 50%' : '0 0 auto'), display: 'flex', flexDirection: 'column', borderBottom: !isMobile ? '1px solid rgba(255,255,255,0.06)' : 'none', minHeight: 0, transition: 'flex 0.25s ease' }}
             >
               {/* Terminal Header */}
-              <div style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(22,27,34,0.9)',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                flexShrink: 0
-              }}>
+              <div
+                className="collapsible-header"
+                onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+                style={{ background: 'rgba(22,27,34,0.9)' }}
+              >
+                <ChevronRight size={14} className={`collapsible-chevron ${isTerminalOpen ? 'open' : ''}`} />
                 <Terminal size={14} style={{ color: '#4ade80' }} />
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d1d5db' }}>Terminal</span>
                 {isRunning && (
@@ -668,54 +711,56 @@ export default function StudentCodingArea() {
               </div>
 
               {/* Terminal Content */}
-              <div style={{
-                flex: 1, overflow: 'auto', padding: '0.75rem 1rem',
-                fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-                fontSize: '0.8rem', lineHeight: 1.6
-              }}>
-                {terminalLines.length === 0 ? (
-                  <div style={{ color: '#484f58', fontStyle: 'italic', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '0.5rem' }}>
-                    <Terminal size={32} style={{ opacity: 0.2 }} />
-                    <span>Tekan <b style={{ color: '#60a5fa' }}>Jalankan</b> untuk mulai</span>
-                  </div>
-                ) : (
-                  terminalLines.map((line) => (
-                    <div key={line.id} style={{
-                      whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                      color: line.type === 'command' ? '#484f58'
-                        : line.type === 'prompt' ? '#e5c07b'
-                          : line.type === 'input' ? '#56d4dd'
-                            : line.type === 'error' ? '#f87171'
-                              : line.type === 'success' ? '#4ade80'
-                                : '#c9d1d9',
-                      fontWeight: line.type === 'input' ? 700 : 400
-                    }}>
-                      {line.text}
+              {isTerminalOpen && (
+                <div className="collapsible-content" style={{
+                  flex: 1, overflow: 'auto', padding: '0.75rem 1rem',
+                  fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+                  fontSize: '0.8rem', lineHeight: 1.6
+                }}>
+                  {terminalLines.length === 0 ? (
+                    <div style={{ color: '#484f58', fontStyle: 'italic', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '0.5rem' }}>
+                      <Terminal size={32} style={{ opacity: 0.2 }} />
+                      <span>Tekan <b style={{ color: '#60a5fa' }}>Jalankan</b> untuk mulai</span>
                     </div>
-                  ))
-                )}
-                {waitingForInput && (
-                  <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.25rem' }}>
-                    <span style={{ color: '#4ade80', marginRight: '0.375rem', animation: 'pulse 1s infinite' }}>❯</span>
-                    <input
-                      ref={inputFieldRef}
-                      type="text"
-                      value={currentInput}
-                      onChange={(e) => setCurrentInput(e.target.value)}
-                      onKeyDown={handleInputSubmit}
-                      style={{
-                        background: 'transparent', color: '#56d4dd',
-                        fontFamily: 'inherit', fontSize: 'inherit',
-                        outline: 'none', border: 'none', flex: 1,
-                        caretColor: '#56d4dd'
-                      }}
-                      placeholder="Ketik input, Enter untuk kirim..."
-                      autoFocus
-                    />
-                  </div>
-                )}
-                <div ref={terminalEndRef} />
-              </div>
+                  ) : (
+                    terminalLines.map((line) => (
+                      <div key={line.id} style={{
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                        color: line.type === 'command' ? '#484f58'
+                          : line.type === 'prompt' ? '#e5c07b'
+                            : line.type === 'input' ? '#56d4dd'
+                              : line.type === 'error' ? '#f87171'
+                                : line.type === 'success' ? '#4ade80'
+                                  : '#c9d1d9',
+                        fontWeight: line.type === 'input' ? 700 : 400
+                      }}>
+                        {line.text}
+                      </div>
+                    ))
+                  )}
+                  {waitingForInput && (
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.25rem' }}>
+                      <span style={{ color: '#4ade80', marginRight: '0.375rem', animation: 'pulse 1s infinite' }}>❯</span>
+                      <input
+                        ref={inputFieldRef}
+                        type="text"
+                        value={currentInput}
+                        onChange={(e) => setCurrentInput(e.target.value)}
+                        onKeyDown={handleInputSubmit}
+                        style={{
+                          background: 'transparent', color: '#56d4dd',
+                          fontFamily: 'inherit', fontSize: 'inherit',
+                          outline: 'none', border: 'none', flex: 1,
+                          caretColor: '#56d4dd'
+                        }}
+                        placeholder="Ketik input, Enter untuk kirim..."
+                        autoFocus
+                      />
+                    </div>
+                  )}
+                  <div ref={terminalEndRef} />
+                </div>
+              )}
             </div>
           )}
 
@@ -723,16 +768,15 @@ export default function StudentCodingArea() {
           {showTests && (
             <div
               className="coding-tests-section"
-              style={{ flex: isMobile ? '1 1 100%' : '1 1 50%', display: 'flex', flexDirection: 'column', minHeight: 0 }}
+              style={{ flex: isMobile ? '1 1 100%' : (isTestsOpen ? '1 1 50%' : '0 0 auto'), display: 'flex', flexDirection: 'column', minHeight: 0, transition: 'flex 0.25s ease' }}
             >
               {/* Test Results Header */}
-              <div style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(22,27,34,0.9)',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                flexShrink: 0
-              }}>
+              <div
+                className="collapsible-header"
+                onClick={() => setIsTestsOpen(!isTestsOpen)}
+                style={{ background: 'rgba(22,27,34,0.9)' }}
+              >
+                <ChevronRight size={14} className={`collapsible-chevron ${isTestsOpen ? 'open' : ''}`} />
                 <CheckCircle size={14} style={{ color: '#a78bfa' }} />
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d1d5db' }}>Kasus Uji</span>
                 {testResults && (
@@ -749,7 +793,7 @@ export default function StudentCodingArea() {
               </div>
 
               {/* Test Results Content */}
-              <div style={{ flex: 1, overflow: 'auto', padding: '0.75rem 1rem' }}>
+              {isTestsOpen && <div className="collapsible-content" style={{ flex: 1, overflow: 'auto', padding: '0.75rem 1rem' }}>
                 {submissionStatus && !testResults ? (
                   <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -835,7 +879,7 @@ export default function StudentCodingArea() {
                     <span>Jalankan kode untuk melihat hasil</span>
                   </div>
                 )}
-              </div>
+              </div>}
             </div>
           )}
         </div>

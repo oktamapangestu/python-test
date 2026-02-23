@@ -469,6 +469,55 @@ textarea.form-input {
   }
 }
 
+/* === Collapsible Panel Styles === */
+.collapsible-header {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.collapsible-header:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: inset 3px 0 0 rgba(139, 92, 246, 0.5);
+}
+
+.collapsible-header:active {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.collapsible-chevron {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.collapsible-chevron.open {
+  transform: rotate(90deg);
+}
+
+.collapsible-content {
+  animation: slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+}
+
 /* Pulse animation for timer */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
