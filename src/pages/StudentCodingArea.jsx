@@ -425,7 +425,6 @@ export default function StudentCodingArea() {
           <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ minWidth: 0 }}>
               <h1 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{question.title}</h1>
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{question.description}</p>
             </div>
             {/* <button
               onClick={() => setIsQuestionModalOpen(true)}
