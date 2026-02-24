@@ -147,9 +147,10 @@ export default function StudentDashboard() {
                     fontSize: '0.8rem', color: '#94a3b8', margin: 0, lineHeight: 1.6,
                     overflow: 'hidden', textOverflow: 'ellipsis',
                     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-                  }}>
-                    {q.description}
-                  </p>
+                  }}
+                    className="rich-description"
+                    dangerouslySetInnerHTML={{ __html: q.description }}
+                  />
 
                   {/* Submission Details */}
                   {sub && (

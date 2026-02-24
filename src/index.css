@@ -469,6 +469,139 @@ textarea.form-input {
   }
 }
 
+/* === React Quill Dark Theme === */
+.quill-dark-wrapper .ql-toolbar.ql-snow {
+  background: rgba(15, 23, 42, 0.8);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quill-dark-wrapper .ql-container.ql-snow {
+  background: rgba(15, 23, 42, 0.6);
+  border: none;
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.9rem;
+  min-height: 120px;
+}
+
+.quill-dark-wrapper .ql-editor {
+  min-height: 120px;
+  line-height: 1.7;
+}
+
+.quill-dark-wrapper .ql-editor.ql-blank::before {
+  color: #64748b;
+  font-style: italic;
+}
+
+.quill-dark-wrapper .ql-snow .ql-stroke {
+  stroke: #94a3b8;
+}
+
+.quill-dark-wrapper .ql-snow .ql-fill,
+.quill-dark-wrapper .ql-snow .ql-stroke.ql-fill {
+  fill: #94a3b8;
+}
+
+.quill-dark-wrapper .ql-snow .ql-picker {
+  color: #94a3b8;
+}
+
+.quill-dark-wrapper .ql-snow .ql-picker-options {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.quill-dark-wrapper .ql-snow .ql-picker-item:hover,
+.quill-dark-wrapper .ql-snow button:hover {
+  color: #60a5fa !important;
+}
+
+.quill-dark-wrapper .ql-snow button:hover .ql-stroke {
+  stroke: #60a5fa !important;
+}
+
+.quill-dark-wrapper .ql-snow button:hover .ql-fill {
+  fill: #60a5fa !important;
+}
+
+.quill-dark-wrapper .ql-snow button.ql-active .ql-stroke {
+  stroke: #3b82f6 !important;
+}
+
+.quill-dark-wrapper .ql-snow button.ql-active .ql-fill {
+  fill: #3b82f6 !important;
+}
+
+.quill-dark-wrapper .ql-snow .ql-picker-label:hover {
+  color: #60a5fa !important;
+}
+
+.quill-dark-wrapper .ql-editor pre.ql-syntax {
+  background: rgba(0, 0, 0, 0.3);
+  color: #c9d1d9;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 0.85rem;
+}
+
+.quill-dark-wrapper .ql-editor blockquote {
+  border-left: 3px solid #3b82f6;
+  padding-left: 1rem;
+  color: #94a3b8;
+}
+
+/* === Rich Description Rendering === */
+.rich-description {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.7;
+}
+
+.rich-description p {
+  margin: 0.25rem 0;
+}
+
+.rich-description strong {
+  color: #e2e8f0;
+}
+
+.rich-description code {
+  background: rgba(59, 130, 246, 0.1);
+  color: #93c5fd;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Menlo', monospace;
+  font-size: 0.85em;
+}
+
+.rich-description pre {
+  background: rgba(0, 0, 0, 0.3);
+  color: #c9d1d9;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: 'Menlo', monospace;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.rich-description ul, .rich-description ol {
+  padding-left: 1.5rem;
+  margin: 0.25rem 0;
+}
+
+.rich-description blockquote {
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.75rem;
+  color: #94a3b8;
+  margin: 0.5rem 0;
+}
+
 /* === Collapsible Panel Styles === */
 .collapsible-header {
   padding: 0.5rem 1rem;

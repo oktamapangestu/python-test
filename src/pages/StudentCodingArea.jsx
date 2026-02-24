@@ -674,12 +674,10 @@ export default function StudentCodingArea() {
                 }}>
                   {question.title}
                 </h2>
-                <p style={{
-                  fontSize: '0.8rem', color: '#94a3b8', margin: 0,
-                  lineHeight: 1.6, whiteSpace: 'pre-wrap'
-                }}>
-                  {question.description}
-                </p>
+                <div
+                  className="rich-description"
+                  dangerouslySetInnerHTML={{ __html: question.description }}
+                />
               </div>
             )}
           </div>
@@ -997,12 +995,14 @@ export default function StudentCodingArea() {
                 fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc',
                 margin: '0 0 1rem', lineHeight: 1.4
               }}>{question.title}</h2>
-              <div style={{
-                fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.8,
-                whiteSpace: 'pre-wrap', wordBreak: 'break-word'
-              }}>
-                {question.description}
-              </div>
+              <div
+                className="rich-description"
+                style={{
+                  fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.8,
+                  wordBreak: 'break-word'
+                }}
+                dangerouslySetInnerHTML={{ __html: question.description }}
+              />
             </div>
           </div>
         </div>

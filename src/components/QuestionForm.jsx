@@ -3,6 +3,24 @@ import { Plus, Trash2, X } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['code-block', 'blockquote'],
+    ['link'],
+    ['clean']
+  ]
+};
+
+const quillFormats = [
+  'header', 'bold', 'italic', 'underline', 'strike',
+  'list', 'code-block', 'blockquote', 'link'
+];
 
 export default function QuestionForm({ onSave, onCancel, initialData = null }) {
   const [title, setTitle] = useState(initialData?.title || '');
@@ -66,31 +84,35 @@ export default function QuestionForm({ onSave, onCancel, initialData = null }) {
           />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="input-group">
-            <label>Deskripsi Soal</label>
-            <textarea
-              className="form-input h-32"
-              placeholder="Jelaskan apa yang harus diselesaikan oleh mahasiswa..."
+        <div className="input-group">
+          <label>Deskripsi Soal</label>
+          <div className="quill-dark-wrapper" style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <ReactQuill
+              theme="snow"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
+              modules={quillModules}
+              formats={quillFormats}
+              placeholder="Jelaskan apa yang harus diselesaikan oleh mahasiswa..."
+              style={{ minHeight: '150px' }}
             />
           </div>
+        </div>
 
-          <div className="input-group">
-            <label>Batas Waktu (Menit) - Opsional</label>
-            <input
-              type="number"
-              min="1"
-              className="form-input"
-              placeholder="Kosongkan jika tanpa batas waktu"
-              value={timeLimit}
-              onChange={(e) => setTimeLimit(e.target.value)}
-            />
-            <p className="text-xs text-muted mt-2">
-              Jika diisi, mahasiswa akan melihat hitung mundur. Jawaban akan otomatis dikirim ketika waktu habis.
-            </p>
-          </div>
+        <div className="input-group">
+          <label>Batas Waktu (Menit) - Opsional</label>
+          <input
+            type="number"
+            min="1"
+            className="form-input"
+            placeholder="Kosongkan jika tanpa batas waktu"
+            value={timeLimit}
+            onChange={(e) => setTimeLimit(e.target.value)}
+            style={{ maxWidth: '300px' }}
+          />
+          <p className="text-xs text-muted mt-2">
+            Jika diisi, mahasiswa akan melihat hitung mundur. Jawaban akan otomatis dikirim ketika waktu habis.
+          </p>
         </div>
 
         <div className="input-group">
