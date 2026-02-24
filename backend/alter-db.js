@@ -22,6 +22,28 @@ async function alterDB() {
     }
 
     try {
+      await connection.query('ALTER TABLE submissions ADD COLUMN duration_seconds INT DEFAULT NULL');
+      console.log('Kolom duration_seconds berhasil ditambahkan.');
+    } catch (e) {
+      if (e.code === 'ER_DUP_FIELDNAME') {
+        console.log('Kolom duration_seconds sudah ada.');
+      } else {
+        throw e;
+      }
+    }
+
+    try {
+      await connection.query('ALTER TABLE submissions ADD COLUMN notes TEXT DEFAULT NULL');
+      console.log('Kolom notes berhasil ditambahkan.');
+    } catch (e) {
+      if (e.code === 'ER_DUP_FIELDNAME') {
+        console.log('Kolom notes sudah ada.');
+      } else {
+        throw e;
+      }
+    }
+
+    try {
       await connection.query('ALTER TABLE submissions ADD COLUMN tab_switch_count INT DEFAULT 0');
       console.log('Kolom tab_switch_count berhasil ditambahkan.');
     } catch (e) {
